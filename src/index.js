@@ -7,19 +7,15 @@ import { Provider } from 'react-redux'
 import { createStore,
         combineReducers } from 'redux' 
 import { bigIntLiteral } from '@babel/types';
+import initialAnimals from './base'
 
 
 
-const NAP = 'nap';
-const EAT = 'eat';
-const PLAY = 'play';
-const NAME = 'Milla'
-const ACTIVITY = 'drool'
+// const NAME = 'Milla';
+// const ACTIVITY = 'drool';
 
 const initialState = {
-    action: NAP,
-    name: NAME,
-    activity: ACTIVITY
+    ...initialAnimals
 };
 
 console.log(initialState);
@@ -28,107 +24,86 @@ console.log(initialState);
 
 /// ACTIONS + ACTION CREATORS
 
-const ACTION_NAP = NAP;
-const ACTION_EAT = EAT;
-const ACTION_PLAY = PLAY; 
-const ACTION_SET_NAME = NAME;
-const ACTION_SET_ACTIVITY = ACTIVITY;
+const ACTION_SET_NAME = 'name';
+const ACTION_SET_ACTIVITY = 'activity';
+const ACTION_ADD_CAT = 'add';
 
-export function setNap () {
-    return {
-        type: ACTION_NAP
-    };
-}
-
-export function setEat () {
-    return {
-        type: ACTION_EAT
-    };
-}
-
-export function setPlay () {
-    return {
-        type: ACTION_PLAY
-    };
-}
-
-export function setName(name) {
+export function setName(id, name) {
     return {
         type: ACTION_SET_NAME,
         payload: {
+            id,
             name,
         }
     }
 }
 
-export function setActivity(activity) {
+export function setActivity(id, activity) {
     return {
         type: ACTION_SET_ACTIVITY,
         payload: {
+            id,
             activity,
         }
     }
 }
+export function addCat(name, activity) {
+    return {
+        type: ACTION_ADD_CAT,
+        payload: {
+            name,
+            activity
+        }
+    }
+}
 
-window.nap = setNap;
-window.eat = setEat;
-window.play = setPlay; 
+
 window.setName = setName;
 window.setActivity= setActivity;
+window.addCat= addCat;
 
 ///// Reducer
 
-export function cat (state=initialState.action, action={type: ''}) {
+export function cat (state=initialState.cats, action={type: ''}) {
     // console.log(`cat is doing this: ${action.state}`)
+    console.log(state)
     switch (action.type) {
-        case ACTION_NAP:
-            return NAP;
+        case ACTION_SET_NAME:
+            return {
+                ...state,
+                [action.payload.id]: {
+                    ...state[action.payload.id],
+                    name:action.payload.name
+                }
+            }
         break;
-        case ACTION_EAT:
-            return EAT;
+        case ACTION_SET_ACTIVITY:
+            return {
+                ...state,
+                [action.payload.id]: {
+                    ...state[action.payload.id],
+                    activity:action.payload.activity
+                }
+            }
         break;
-        case ACTION_PLAY:
-            return PLAY;
-        break;
+        case ACTION_ADD_CAT:
+            const randomId = Math.floor(Math.random()*Math.floor(1000));
+            return {
+                ...state,
+                [randomId]: {
+                    ...state[randomId],
+                    name: action.payload.name,
+                    activity: action.payload.activity
+                }
+            }
         default:
          return state;
         break;
     }
 }
 
-export function name (state=initialState.name, action={type: ''}) {
-    console.log(`cat was named : ${state}`)
-    switch (action.type) {
-        case ACTION_SET_NAME:
-        console.log(`cat is NOW named : ${action.payload.name}`)
 
-            return action.payload.name
-        break;
-        default: 
-            return state;
-        break;
-    }
-}
-export function activity (state=initialState.activity, action={type: ''}) {
-    console.log(`cat was doing this : ${state}`)
-    switch (action.type) {
-        case ACTION_SET_ACTIVITY:
-        console.log(`cat is NOW doing this : ${action.payload.activity}`)
-            return action.payload.activity
-        break;
-        default: 
-            return state;
-        break;
-    }
-}
-
-export const Megastore = combineReducers({
-    action: cat,
-    name: name,
-    activity: activity
-})
-
-export const store = createStore(Megastore)
+export const store = createStore(cat)
 
 window.store = store; 
 
